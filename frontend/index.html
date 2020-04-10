@@ -1,0 +1,79 @@
+<!doctype html>
+
+<html lang="en">
+
+  <head>
+    <!-- Metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title>BNJ</title>
+    <!-- Favicon -->
+    <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAGWumABVQegD///8AzOHwAOvi2AAJPmMAtdz3AK3Y9wAqf70ABSlCAN966wCw2fcABXCeAAc5XAAeidYAAADUTUpK1NAADeGd2t3dAAAN4Rnd3QAAAAThER3VMAAAAEZmZmUwAAAAAAoRFvzQAAAAphHYvM0AAABhHdzN3QAAACHcDAzQAAAAIdwMDNAAAAAh3d3dAAAAAAHd3dAAAAAAAC0O0AAACiIR3QLdlwACRETQAJlwAAAi3QAAAADwAQAA4AMAAOAPAADgBwAA8AcAAP4BAAD8AAAA/AAAAPwBAAD8AQAA/AMAAP4HAAD/JwAA4CAAAOBxAADw/wAA" rel="icon" type="image/x-icon" />
+    <!-- Style -->
+    <link rel="stylesheet" href="assets/style/style.css">
+  </head>
+
+  <body>
+    <!-- Assets  -->
+    <img class="hidden" id="RabbitImg" src="assets/img/rabbit.gif" alt="rabbits">
+
+    <!-- Login Page -->
+    <div class="page basicBorder hidden" id="LoginPage">
+
+      <h1>Bounce 'n Junk</h1>
+
+      <!-- Login Form -->
+      <div id="LoginForm">
+
+        <!-- Name FormItme -->
+        <div class="formItem basicBorder">
+          <p>Name</p>
+          <input type="text" id="LoginName" value="">
+          <div class="hidden" id="InputError"></div>
+        </div>
+
+        <!-- Color FormItem -->
+        <div class="formItem basicBorder">
+          <p>Color</p>
+          <input type="color" id="LoginColor" name="favcolor" value="#ff0000">
+        </div>
+
+        <!-- Login FormItem -->
+        <div class="formItem basicBorder">
+          <button id="LoginButton">Login</button>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Game Page  -->
+    <div class="page basicBorder hidden" id="GamePage">
+      <!-- Canvas  -->
+      <canvas id="GameCanvas"></canvas>
+    </div>
+
+    <!-- Status Bar  -->
+    <div class="hidden" id="StatusBar">
+
+      <div class="basicBorder statusItem" id="FPSMeter"></div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/script/constant.js"></script>
+    <script src="assets/script/config.js"></script>
+    <script src="assets/script/utils.js"></script>
+    <script src="assets/script/asset.js"></script>
+    <script src="assets/script/engine.js"></script>
+    <script src="assets/script/display.js"></script>
+    <script src="assets/script/ws.js"></script>
+    <script src="assets/script/input.js"></script>
+    <script src="assets/script/login.js"></script>
+    <script src="assets/script/game.js"></script>
+    <script src="assets/script/app.js"></script>
+  </body>
+
+</html>
