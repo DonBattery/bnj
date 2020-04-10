@@ -1,0 +1,12 @@
+---
+# Bounce 'n Junk Server configuration file
+
+# port is where the server is listening (HTTP and WS)
+port: 9091
+
+# database is a mandatory field describing where the database file should be reside
+database:
+  type: bolt
+  url: bnj.db
+
+...
