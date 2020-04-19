@@ -52,25 +52,40 @@ canvas {
 
 #StatusBar {
   position: absolute;
+  display: flex;
   padding: 5px;
   width: 100%;
   top: 0;
-  /* opacity: 0.8; */
   border-radius: 5px;
 }
 
 .statusItem {
-  display: flex;
+  display: inline-flex;
   padding: 3px;
-  color: rgb(145, 200, 232);
+  margin: 1px;
+  border-color: aquamarine;
+  color: aqua;
   background-color: rgb(7, 63, 84);
 }
 
+#LoginForm {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: auto;
+}
+
+#LoginName {
+  font-size: 1.5rem;
+}
+
 .formItem {
+  display: block;
   margin-left: 10%;
   margin-right: 10%;
   margin-bottom: 0.5rem;
   padding: 1rem;
+  /* max-width: 400px; */
 }
 
 #InputError {
@@ -80,6 +95,7 @@ canvas {
 }
 
 p, h1, button {
+  white-space: nowrap;
   font-size: 1rem;
   font-family: 'Comic Neue', cursive;
   font-family: 'Press Start 2P', cursive;

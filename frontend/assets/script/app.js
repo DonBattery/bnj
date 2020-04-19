@@ -2,14 +2,24 @@
 
 class App {
   constructor() {
+    this.ws    = new WebSocketManager();
     this.game  = new GameManager();
-    this.login = new LoginManager(this.game.initGame);
+    this.login = new LoginManager(this.ws.request, this.game.initGame);
 
-    this.run = () => { this.login.initLogin(); };
+    this.run = () => {
+      this.ws.initWs();
+      this.login.initLogin();
+    };
   };
 };
 
 window.addEventListener("load", () => {
+  // Create the StatusManager with the StatusBar
+  Status = new StatusManager(document.getElementById("StatusBar"));
+  Status.update("WS", "Not Connected");
+  Status.update("FPS", 0);
+  Status.show();
+
   let app = new App();
   app.run();
 });

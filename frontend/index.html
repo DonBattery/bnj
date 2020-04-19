@@ -26,20 +26,20 @@
       <!-- Login Form -->
       <div id="LoginForm">
 
-        <!-- Name FormItme -->
+        <!-- FormItem - Name -->
         <div class="formItem basicBorder">
           <p>Name</p>
-          <input type="text" id="LoginName" value="">
+          <input type="text" id="LoginName" placeholder="  min 3 max 12" maxlength="12" size="13">
           <div class="hidden" id="InputError"></div>
         </div>
 
-        <!-- Color FormItem -->
+        <!-- FormItem - Color -->
         <div class="formItem basicBorder">
           <p>Color</p>
           <input type="color" id="LoginColor" name="favcolor" value="#ff0000">
         </div>
 
-        <!-- Login FormItem -->
+        <!-- FormItem - Login -->
         <div class="formItem basicBorder">
           <button id="LoginButton">Login</button>
         </div>
@@ -56,23 +56,21 @@
     </div>
 
     <!-- Status Bar  -->
-    <div class="hidden" id="StatusBar">
-
-      <div class="basicBorder statusItem" id="FPSMeter"></div>
-
-    </div>
+    <div class="hidden" id="StatusBar"></div>
 
     <!-- Scripts -->
     <script src="assets/script/constant.js"></script>
-    <script src="assets/script/config.js"></script>
+    <script src="assets/script/stats.js"></script>
     <script src="assets/script/utils.js"></script>
     <script src="assets/script/asset.js"></script>
     <script src="assets/script/engine.js"></script>
     <script src="assets/script/display.js"></script>
-    <script src="assets/script/ws.js"></script>
+    <script src="assets/script/ws_msg.js"></script>
+    <script src="assets/script/ws_manager.js"></script>
     <script src="assets/script/input.js"></script>
     <script src="assets/script/login.js"></script>
-    <script src="assets/script/game.js"></script>
+    <script src="assets/script/game_world.js"></script>
+    <script src="assets/script/game_manager.js"></script>
     <script src="assets/script/app.js"></script>
   </body>
 

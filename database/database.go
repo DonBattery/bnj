@@ -147,7 +147,7 @@ func (bdb *BoltDB) GetType(keyChain string) string {
 	return dbType
 }
 
-func (bdb *BoltDB) GetRAW(keyChain string) ([]byte, error) {
+func (bdb *BoltDB) GetRaw(keyChain string) ([]byte, error) {
 	var out []byte
 	buckets, key, err := parseKeyChain(keyChain)
 	if err != nil {

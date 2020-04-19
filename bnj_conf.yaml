@@ -9,4 +9,12 @@ database:
   type: bolt
   url: bnj.db
 
+# world_rules describes the rules of the game world
+world_rules:
+  block_size: 16
+  max_player: 9
+  min_player: 1
+  target_score: 2
+  wait_time: 10
+
 ...

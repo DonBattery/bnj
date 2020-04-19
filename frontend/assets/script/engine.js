@@ -1,52 +1,46 @@
 "use strict";
 
+// Engine is animation manager that calls the Display's render then
+// the GameManager's update method on every step in time
 class Engine {
   constructor(step, update, render) {
     this.step            = step,
-    this.render          = () => {};
+    this.update          = (update) ? update : () => {};
+    this.render          = (render) ? render : () => {};
     this.timeSinceUpdate = 0;
-    this.frame           = undefined,
-    this.engineTime      = undefined,
+    this.frame           = null,
+    this.engineTime      = null,
     this.updated         = false;
 
-    this.run        = this.run.bind(this);
-    this.update     = this.update.bind(this);
-    this.setRender  = this.setRender.bind(this);
-    this.initEngine = this.initEngine.bind(this);
-    this.stop       = this.stop.bind(this);
+    this.initEngine  = this.initEngine.bind(this);
+    this.haltEngine  = this.haltEngine.bind(this);
+    this.run = this.run.bind(this);
   };
 
   initEngine() {
+    fixWindow();
     this.timeSinceUpdate = this.step;
     this.engineTime = window.performance.now();
-    this.frame = window.requestAnimationFrame(this.run);
-    return this.update;
+    this.frame = window.requestAnimFrame(this.run);
+  };
+
+  haltEngine() {
+    window.cancelAnimationFrame(this.frame);
   };
 
   run(rightNow) {
-    this.frame = window.requestAnimationFrame(this.run);
+    this.frame = window.requestAnimFrame(this.run);
 
     let deltaTime = rightNow - this.engineTime;
     this.timeSinceUpdate += deltaTime;
     this.engineTime = rightNow;
 
-    if (this.updated && this.timeSinceUpdate >= this.step) {
-      this.updated = false;
-      this.render(1 / (this.timeSinceUpdate / 1000)); // pass the FPS to the render function
+    if (this.timeSinceUpdate >= this.step) {
+      Status.update("FPS", 1 / (this.timeSinceUpdate / 1000)); // Calculate FPS
+      this.render();
       this.timeSinceUpdate = 0;
     };
-  };
 
-  setRender(renderFn) {
-    this.render = renderFn;
-  };
-
-  update() {
-    this.updated = true;
-  };
-
-
-  stop() {
-    window.cancelAnimationFrame(this.frame);
+    this.update();
   };
 };

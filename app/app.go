@@ -146,9 +146,14 @@ func (app *app) cleanup() error {
 func getLong() string {
 	return fmt.Sprintf("%s%s",
 		color.New(color.FgCyan).Sprint(`
-Bounce 'n Junk Server
+Bounce 'n Junk
 `), `
-This is the backend of Bounce 'n Junk which is a crappy Jump 'n Bump clone
+Bounce 'n Junk is a crappy Jump 'n Bump clone.
+
+This self contained application has three major function:
+  - Set up the environment for the game server (generate config and db file, build, Dockerize)
+  - Run the game server (create game world, serve the game site and handle WebSocket communication)
+  - Send admin requests to a running game server (check stats, configs, stop server)
 `,
 	)
 }
