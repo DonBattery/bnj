@@ -32,7 +32,7 @@ class WebSocketManager {
       return
     }
 
-    Status.update("WS", "Connected");
+    Status.update("WS", "❎");
 
     this.setup();
   };

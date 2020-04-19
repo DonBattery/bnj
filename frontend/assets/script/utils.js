@@ -1,5 +1,16 @@
 "use strict";
 
+const colorDdict = {
+  "1" : "#8ceb34",
+  "2" : "blue",
+  "3" : "aqua",
+  "4" : "red",
+};
+
+function numToColor(num) {
+  return colorDdict[num] || "black";
+};
+
 function randRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
 };

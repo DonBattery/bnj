@@ -7,6 +7,9 @@ class GameWorld {
     this.world_map = worldMap;
     this.game_objects = gameObjects;
 
+    console.log(typeof this.world_map.width());
+    console.log(this.world_map);
+
     this.width    = () => this.world_map.width();
     this.height   = () => this.world_map.height();
     this.widthPx  = () => this.world_map.width() * this.world_rules.block_size;

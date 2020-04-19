@@ -18,10 +18,9 @@ class Engine {
   };
 
   initEngine() {
-    fixWindow();
     this.timeSinceUpdate = this.step;
     this.engineTime = window.performance.now();
-    this.frame = window.requestAnimFrame(this.run);
+    this.frame = window.requestAnimationFrame(this.run);
   };
 
   haltEngine() {
@@ -29,14 +28,14 @@ class Engine {
   };
 
   run(rightNow) {
-    this.frame = window.requestAnimFrame(this.run);
+    this.frame = window.requestAnimationFrame(this.run);
 
     let deltaTime = rightNow - this.engineTime;
     this.timeSinceUpdate += deltaTime;
     this.engineTime = rightNow;
 
     if (this.timeSinceUpdate >= this.step) {
-      Status.update("FPS", 1 / (this.timeSinceUpdate / 1000)); // Calculate FPS
+      Status.update("FPS", (1 / (this.timeSinceUpdate / 1000)).toFixed(2)); // Calculate FPS
       this.render();
       this.timeSinceUpdate = 0;
     };
