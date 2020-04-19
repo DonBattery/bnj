@@ -36,7 +36,7 @@ func (gw *GameWorld) Dump() GameWorldDump {
 }
 
 type WorldRules struct {
-	BlockSize   int `josn:"block_size"`
+	BlockSize   int `json:"block_size"`
 	MaxPlayer   int `json:"max_player"`
 	MinPlayer   int `json:"min_player"`
 	TargetScore int `json:"target_score"`
@@ -52,7 +52,7 @@ type Player struct {
 }
 
 type WorldMap struct {
-	Background string   `json:"backgrond"`
+	Background string   `json:"background"`
 	Rows       []string `json:"rows"`
 }
 

@@ -16,7 +16,7 @@ class App {
 window.addEventListener("load", () => {
   // Create the StatusManager with the StatusBar
   Status = new StatusManager(document.getElementById("StatusBar"));
-  Status.update("WS", "Not Connected");
+  Status.update("WS", "❌");
   Status.update("FPS", 0);
   Status.show();
 

@@ -11,7 +11,18 @@ class GameManager {
   };
 
   initGame(configs) {
-    console.log("initGame called with Configs:");
-    console.log(configs);
+    this.world = new GameWorld(
+      configs.world_rules,
+      configs.players,
+      new WorldMap(
+        configs.world_map.background,
+        configs.world_map.rows),
+      configs.world_objects)
+
+    this.display = new Display(this.world);
+
+    // this.engine = new Engine(33, this.world.update, this.display.render);
+    this.engine = new Engine(33, this.display.drawAll, this.display.render);
+    this.engine.initEngine();
   };
 };

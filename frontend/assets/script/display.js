@@ -1,34 +1,35 @@
 "use strict";
 
 class Display {
-  constructor(configs, assets) {
-    this.updater       = () => {};
-    this.configs       = configs;
-    this.assets        = assets || [];
-    this.width         = configs.getPxWidth();
-    this.height        = configs.getPxHeight();
+  constructor(world, assets) {
+    this.updated = false;
+    this.world   = world;
+    this.assets  = assets || [];
+
+    this.width         = world.widthPx();
+    this.height        = world.heightPx();
+
     this.widthToHeight = this.width / this.height;
+
     this.gamePage      = document.getElementById("GamePage");
-    this.statusBar     = document.getElementById("StatusBar");
-    this.FPSMeter      = document.getElementById("FPSMeter");
     this.gameCanvas    = document.getElementById("GameCanvas");
     this.ctx           = this.gameCanvas.getContext("2d");
     this.buffer        = document.createElement("canvas").getContext("2d");
-
-
     this.buffer.canvas.height = this.height;
     this.buffer.canvas.width  = this.width;
 
-    this.initDisplay = this.initDisplay.bind(this);
-    this.setUpdater  = this.setUpdater.bind(this);
     this.resize      = this.resize.bind(this);
     this.render      = this.render.bind(this);
+    this.drawBox     = this.drawBox.bind(this);
     this.drawObject  = this.drawObject.bind(this);
     this.drawBunny   = this.drawBunny.bind(this);
-  };
+    this.drawAll     = this.drawAll.bind(this);
 
-  setUpdater(updaterFn) {
-    this.updater = updaterFn;
+    this.gamePage.classList.remove("hidden");
+
+    window.addEventListener("resize", this.resize);
+    window.addEventListener("orientationchange", this.resize);
+    this.resize();
   };
 
   resize() {
@@ -54,24 +55,20 @@ class Display {
     this.gamePage.style.fontSize = (newWidth / this.width / 2) + 'em';
   };
 
-  initDisplay(configs, assets) {
-    this.configs = configs;
-    this.assets = assets;
-    return this.draw;
-  };
-
-  render(timeStamp, fps) {
-    this.FPSMeter.innerHTML = "FPS: " + fps.toFixed(2);
+  render() {
+    if (!this.updated) {
+      return
+    };
     this.ctx.drawImage(this.buffer.canvas,
       0, 0, this.buffer.canvas.width, this.buffer.canvas.height,
       0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.updated = false;
   };
 
-  // draw everything according to the configs, assets and state
-  draw(state) {
-    // trigger the updater function (this should flip the engine's updated switch)
-    this.updater();
-  };
+  drawBox(x, y, width, height, color) {
+    this.buffer.fillStyle = color;
+    this.buffer.fillRect(x, y, width, height);
+  }
 
   drawObject(image, source_x, source_y, destination_x, destination_y, width, height) {
     this.buffer.drawImage(image,
@@ -84,4 +81,30 @@ class Display {
       source_x, source_y, width, height,
       Math.round(destination_x), Math.round(destination_y), width, height);
   };
+
+  drawAll() {
+    this.drawBox(0, 0, this.buffer.canvas.width, this.buffer.canvas.height, this.world.world_map.background);
+
+    for (let i = 0; i < this.world.world_map.rows.length; i++) {
+      const row = this.world.world_map.rows[i];
+      for (let j = 0; j < row.length; j++) {
+        const elem = this.world.world_map.rows[i][j];
+        let color;
+        if (elem == "0") {
+          color = this.world.world_map.background;
+        } else {
+          color = numToColor(elem);
+        }
+        this.drawBox(
+          j * this.world.world_rules.block_size,
+          i * this.world.world_rules.block_size,
+          this.world.world_rules.block_size,
+          this.world.world_rules.block_size,
+          color);
+      };
+    };
+
+    this.updated = true;
+  };
+
 };

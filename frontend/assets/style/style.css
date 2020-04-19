@@ -61,6 +61,7 @@ canvas {
 
 .statusItem {
   display: inline-flex;
+  align-items: center;
   padding: 3px;
   margin: 1px;
   border-color: aquamarine;
