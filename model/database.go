@@ -8,7 +8,7 @@ import (
 type DBConn interface {
 	Init(conf *DBInitConfig) error
 	Get(keyChain string, value interface{}) error
-	GetRAW(keyChain string) ([]byte, error)
+	GetRaw(keyChain string) ([]byte, error)
 	GetType(keyChain string) string
 	Set(keyChain string, value interface{}) error
 	Del(keyChain string) error

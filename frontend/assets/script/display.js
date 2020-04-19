@@ -4,7 +4,7 @@ class Display {
   constructor(configs, assets) {
     this.updater       = () => {};
     this.configs       = configs;
-    this.assets        = assets;
+    this.assets        = assets || [];
     this.width         = configs.getPxWidth();
     this.height        = configs.getPxHeight();
     this.widthToHeight = this.width / this.height;

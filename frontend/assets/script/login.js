@@ -1,9 +1,17 @@
 "use strict";
 
+class LoginRequest {
+  constructor(name, color) {
+    this.name = name;
+    this.color = color;
+  };
+};
+
 class LoginManager {
-  constructor(onAuth) {
-    this.onAuth       = onAuth;
-    this.autenticated = false;
+  constructor(requestFn, onSuccessFn) {
+    this.authenticated = false;
+    this.requestFn     = requestFn;
+    this.onSuccessFn   = onSuccessFn;
 
     this.loginPage   = document.getElementById("LoginPage");
     this.nameField   = document.getElementById("LoginName");
@@ -11,10 +19,11 @@ class LoginManager {
     this.colorField  = document.getElementById("LoginColor");
     this.loginButton = document.getElementById("LoginButton");
 
-    this.validate  = this.validate.bind(this);
-    this.initLogin = this.initLogin.bind(this);
-    this.auth      = this.auth.bind(this);
-    this.showError = this.showError.bind(this);
+    this.initLogin  = this.initLogin.bind(this);
+    this.auth       = this.auth.bind(this);
+    this.validate   = this.validate.bind(this);
+    this.onResponse = this.onResponse.bind(this);
+    this.showError  = this.showError.bind(this);
   };
 
   initLogin() {
@@ -31,9 +40,19 @@ class LoginManager {
       this.showError("Invalid Name");
       return
     };
-    this.errorField.classList.add("hidden");
-    console.log(this.nameField.value);
-    console.log(this.colorField.value);
+    this.requestFn("login", JSON.stringify(new LoginRequest(this.nameField.value, this.colorField.value)), this.onResponse);
+  };
+
+  onResponse(resp) {
+    if (resp.status != 202) {
+      // console.error("Login failed", resp);
+      this.showError(resp.payload);
+      return
+    };
+    resp.payload = JSON.parse(resp.payload);
+    this.loginPage.classList.remove("activePage");
+    this.authenticated = true;
+    this.onSuccessFn(resp.payload);
   };
 
   showError(msg) {

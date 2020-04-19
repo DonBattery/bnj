@@ -28,7 +28,7 @@ func DatabaseStats(ctx context.Context, args []string) error {
 				if err := db.DeleteBucket(arg); err != nil {
 					log.Errorf("Failed to remove bucket %s due to: %s", arg, err.Error())
 				} else {
-					log.Errorf("Successfully removed bucket %s", arg)
+					log.Warnf("Successfully removed bucket %s", arg)
 				}
 			} else {
 				if err := getTree(db, arg); err != nil {
@@ -40,7 +40,7 @@ func DatabaseStats(ctx context.Context, args []string) error {
 				if err := db.Del(arg); err != nil {
 					log.Errorf("Failed to delete key %s due to %s", arg, err.Error())
 				} else {
-					log.Infof("Successfully removed key %s", arg)
+					log.Warnf("Successfully removed key %s", arg)
 				}
 			} else {
 				if err := getKey(db, arg); err != nil {

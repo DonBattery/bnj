@@ -18,10 +18,7 @@ function getWSURL() {
   if (loc.protocol === 'https:') {
     uri = 'wss:';
   }
-  uri += '//' + loc.host;
-  uri += loc.pathname + 'hub';
-
-  return uri;
+  return uri + `//${loc.host}${loc.pathname}hub?client_id=${ClientID}`;
 };
 
 function fixWindow() {
