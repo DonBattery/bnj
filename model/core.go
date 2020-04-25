@@ -8,10 +8,14 @@ import (
 
 // Core is the interface of the WebSocket controller
 type Core interface {
-	AddConn(ws *websocket.Conn, clientID string)
-	Broadcast(msg *ServerMsg, statuses ...ConnStatus)
+	// AddConn add a new WebSocket connection (just upgraded from a HTTP request) with the given ID
+	// to the Core HUB
+	AddConn(ws *websocket.Conn, clientId string)
+	ChangeConnStatus(clientId string, status ConnStatus)
 }
 
+// ServerMsgType is the type of the ServerMsg, sent to a client
+// From this field the client can conclude which field of the ServerMsg needs to be processed
 type ServerMsgType string
 
 const (
@@ -20,8 +24,11 @@ const (
 	ServerMsg_Update   ServerMsgType = "update"
 )
 
+// ServerResponseStatus is sent to a client along with a response to a request
+// it is similar to HTTP statuses
 type ServerResponseStatus int
 
+// The named ServerResponseStatus
 const (
 	ResponseStatusOK           ServerResponseStatus = 200
 	ResponseStatusAccepted     ServerResponseStatus = 202
@@ -30,6 +37,7 @@ const (
 	ResponseStatusServerError  ServerResponseStatus = 500
 )
 
+// String translates a ServerResponseStatus number to its string representation
 func (srs *ServerResponseStatus) String() string {
 	switch *srs {
 	case ResponseStatusOK:
@@ -57,17 +65,19 @@ type ServerResponse struct {
 
 // ServerMsg is an object to be sent to one or more clients
 type ServerMsg struct {
-	Type     ServerMsgType   `json:"type"`
-	Objects  []GameObject    `josn:"objects,omitempty"`
-	Chat     *ChatNotify     `json:"chat,omitempty"`
-	Response *ServerResponse `json:"response,omitempty"`
+	MsgType     ServerMsgType   `json:"msg_type"`
+	GameObjects []GameObject    `josn:"game_objects,omitempty"`
+	Chat        *ChatNotify     `json:"chat,omitempty"`
+	Response    *ServerResponse `json:"response,omitempty"`
 }
 
-func NewServerMsg(msgType ServerMsgType, objects []GameObject, chat *ChatNotify, response *ServerResponse) *ServerMsg {
+// NewServerMsg creates a ServerMsg with the given type, game-objects, chat-notify and response
+// The type determines which field will be checked by the client
+func NewServerMsg(msgType ServerMsgType, gameObjects []GameObject, chat *ChatNotify, response *ServerResponse) *ServerMsg {
 	return &ServerMsg{
-		Type:     msgType,
-		Objects:  objects,
-		Chat:     chat,
-		Response: response,
+		MsgType:     msgType,
+		GameObjects: gameObjects,
+		Chat:        chat,
+		Response:    response,
 	}
 }

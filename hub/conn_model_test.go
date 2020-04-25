@@ -1,4 +1,4 @@
-package model
+package hub
 
 import (
 	"errors"
@@ -26,7 +26,7 @@ func Test_ConnError(t *testing.T) {
 				"Failed to connect",
 			},
 			text:        "Failed to connect",
-			requiredErr: "ConnID: conn-1 Action: connect ErrorCode: -1 Error: Failed to connect",
+			requiredErr: "ConnId: conn-1 Action: connect ErrorCode: -1 Error: Failed to connect",
 		},
 		{
 			connId: "conn-2",
@@ -36,7 +36,7 @@ func Test_ConnError(t *testing.T) {
 				errors.New("Failed to read raw data from WebSocket"),
 			},
 			text:        "Failed to read raw data from WebSocket",
-			requiredErr: "ConnID: conn-2 Action: read raw ErrorCode: -2 Error: Failed to read raw data from WebSocket",
+			requiredErr: "ConnId: conn-2 Action: read raw ErrorCode: -2 Error: Failed to read raw data from WebSocket",
 		},
 		{
 			connId: "conn-3",
@@ -47,7 +47,7 @@ func Test_ConnError(t *testing.T) {
 				errors.New("Write error 420"),
 			},
 			text:        "Failed to send prepared message on the WebSocket: Write error 420",
-			requiredErr: "ConnID: conn-3 Action: send prepared message ErrorCode: -3 Error: Failed to send prepared message on the WebSocket: Write error 420",
+			requiredErr: "ConnId: conn-3 Action: send prepared message ErrorCode: -3 Error: Failed to send prepared message on the WebSocket: Write error 420",
 		},
 		{
 			connId:      "conn-4",
@@ -55,7 +55,7 @@ func Test_ConnError(t *testing.T) {
 			code:        0,
 			errs:        []interface{}{},
 			text:        "",
-			requiredErr: "ConnID: conn-4 Action:  ErrorCode: 0 Error: ",
+			requiredErr: "ConnId: conn-4 Action:  ErrorCode: 0 Error: ",
 		},
 	}
 
@@ -67,6 +67,6 @@ func Test_ConnError(t *testing.T) {
 		req.Equal(tCase.action, err.Action(), "err.Action should return the intended action")
 		req.Equal(tCase.code, err.Code(), "err.Code should return the error code")
 		req.Equal(tCase.text, err.Text(), "err.Text should return the error text")
-		req.Equal(tCase.requiredErr, err.Error(), "The error must be in the 'Conn ID: %s Action: %s Error Code: %d Error: %s' format")
+		req.Equal(tCase.requiredErr, err.Error(), "The error must be in the 'ConnId: %s Action: %s Error Code: %d Error: %s' format")
 	}
 }

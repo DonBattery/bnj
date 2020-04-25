@@ -1,4 +1,4 @@
-package routes
+package server
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func Admin(c echo.Context) error {
+func (s *Server) admin(c echo.Context) error {
 	cfg := c.Get("config")
 	val, ok := cfg.(model.Config)
 	if !ok {

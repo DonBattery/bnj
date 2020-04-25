@@ -89,12 +89,7 @@ class Display {
       const row = this.world.world_map.rows[i];
       for (let j = 0; j < row.length; j++) {
         const elem = this.world.world_map.rows[i][j];
-        let color;
-        if (elem == "0") {
-          color = this.world.world_map.background;
-        } else {
-          color = numToColor(elem);
-        }
+        let color = (elem == "0") ? this.world.world_map.background : numToColor(elem);
         this.drawBox(
           j * this.world.world_rules.block_size,
           i * this.world.world_rules.block_size,

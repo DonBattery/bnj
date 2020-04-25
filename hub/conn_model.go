@@ -1,4 +1,4 @@
-package model
+package hub
 
 import (
 	"fmt"
@@ -47,6 +47,7 @@ type ChatNotify struct {
 
 // ControlNotify is an user control notification (key down or key up)
 type ControlNotify struct {
+	ClientId    string `json:"-"`
 	ControlType string `json:"control_type"`
 	ControlKey  string `json:"control_key"`
 }
@@ -121,12 +122,12 @@ func NewConnError(connId, action string, code int, errs ...interface{}) *ConnErr
 	}
 }
 
-// Error returns the ConnError in the Conn ID: %s Action: %s Error Code: %d Error: %s format
+// Error returns the ConnError in the ConnId: %s Action: %s Error Code: %d Error: %s format
 func (ce *ConnError) Error() string {
-	return fmt.Sprintf("ConnID: %s Action: %s ErrorCode: %d Error: %s", ce.connId, ce.action, ce.code, ce.text)
+	return fmt.Sprintf("ConnId: %s Action: %s ErrorCode: %d Error: %s", ce.connId, ce.action, ce.code, ce.text)
 }
 
-// ConnId returns the Conn ID
+// ConnId returns the ConnId
 func (ce *ConnError) ConnId() string {
 	return ce.connId
 }

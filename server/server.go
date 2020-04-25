@@ -4,42 +4,62 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/donbattery/bnj/game"
+	"github.com/donbattery/bnj/utils"
+	"github.com/gorilla/websocket"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-
-	"github.com/donbattery/bnj/core"
-	"github.com/donbattery/bnj/server/middlewares"
-	"github.com/donbattery/bnj/server/routes"
-	"github.com/donbattery/bnj/utils"
 )
 
-// Run sets up and sruns the HTTP server in the given context
-func Run(ctx context.Context) error {
-	// Create the GameWrold
-	bnjGame := game.NewGameController(ctx)
-	// Inject the bjnGame into a new context
-	coreCtx := context.WithValue(ctx, "game", bnjGame)
-	// Create the WebSocket Core HUB in that context and Init it
-	core := core.NewWsHub(coreCtx)
-	core.Init()
-	// Create the HTTP Server
-	server := echo.New()
-	// Inject the Core into the server's context
-	server.Use(middlewares.NewInjectorMiddleware(coreCtx, core))
-	// Use HTTP logger middleware
-	server.Use(middleware.Logger())
-	// Use the Recover midleware
-	server.Use(middleware.Recover())
+type Server struct {
+	ctx      context.Context
+	srv      *echo.Echo
+	upgrader websocket.Upgrader
+	addConn  func(clientId string, conn *websocket.Conn)
+}
+
+func NewServer(ctx context.Context) *Server {
+	return &Server{
+		ctx:      ctx,
+		srv:      echo.New(),
+		upgrader: websocket.Upgrader{},
+	}
+}
+
+// SetAddConnFn sets the supplyed function as the server's addConn function
+// which will be called with every new Client's ID and WebSocket connection
+func (s *Server) SetAddConnFn(f func(clientId string, conn *websocket.Conn)) {
+	s.addConn = f
+}
+
+// Start sets up and starts the HTTP server
+func (s *Server) Start() error {
+	// Inject the Configs and the Database into the server's context
+	s.srv.Use(newInjectorMiddleware(s.ctx))
+	// Use the Logger middleware
+	s.srv.Use(middleware.Logger())
+	// Use the Recover middleware
+	s.srv.Use(middleware.Recover())
 	// Serve the Frontend from a static folder TODO: move this out
-	server.Static("/", "frontend")
+	s.srv.Static("/", "_frontend")
 	// Upgrade the requests to /hub route into WebSocket connection
-	server.GET("/hub", routes.Hub)
+	s.srv.GET("/hub", s.hub)
 	// Administrative endpoint
-	server.POST("/admin", routes.Admin)
-	// Any other request will be routed here
-	// server.Any("*", routes.NotFound)
+	s.srv.POST("/admin", s.admin)
 	// Run the server
-	return server.Start(":" + strconv.Itoa(utils.Conf(ctx).Port))
+	return s.srv.Start(":" + strconv.Itoa(utils.Conf(s.ctx).Port))
+}
+
+// newInjectorMiddlewar creates a new Echo middleware that injects the configs
+// and the database from the server's context into the Echo context
+func newInjectorMiddleware(ctx context.Context) func(echo.HandlerFunc) echo.HandlerFunc {
+	cfg := utils.Conf(ctx)
+	db := utils.DB(ctx)
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set("config", cfg)
+			c.Set("database", db)
+			return next(c)
+		}
+	}
 }

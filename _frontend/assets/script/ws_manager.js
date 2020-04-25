@@ -45,7 +45,7 @@ class WebSocketManager {
 
     this.ws.onopen = () => {
       // TODO: Implement recconnect
-      console.log("WebSocket Connected with ID", ClientID);
+      console.log("WebSocket Connected with ID", ClientId);
     };
 
     this.ws.onerror = event => {
@@ -95,17 +95,17 @@ class WebSocketManager {
   };
 
   msgHandler(msg) {
-    if (!msg.hasOwnProperty("type")) {
-      console.error("Server Message has unknown type")
+    if (!msg.hasOwnProperty("msg_type")) {
+      console.error("Server Message has unknown msg_type")
       return
     };
-    if (msg.type == "chat") {
+    if (msg.msg_type == "chat") {
       this.handleChat(msg.chat);
     };
-    if (msg.type == "update") {
+    if (msg.msg_type == "update") {
       this.handleUpdate(msg.objects);
     };
-    if (msg.type == "response") {
+    if (msg.msg_type == "response") {
       this.handleResponse(msg.response);
     };
   };

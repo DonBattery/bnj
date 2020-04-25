@@ -1,10 +1,10 @@
 "use strict";
 
 const colorDdict = {
-  "1" : "#8ceb34",
-  "2" : "blue",
-  "3" : "aqua",
-  "4" : "red",
+  "1" : "#7f2e00",
+  "2" : "#0087ef",
+  "3" : "#c6dff5",
+  "4" : "#e0a343",
 };
 
 function numToColor(num) {
@@ -29,7 +29,7 @@ function getWSURL() {
   if (loc.protocol === 'https:') {
     uri = 'wss:';
   }
-  return uri + `//${loc.host}${loc.pathname}hub?client_id=${ClientID}`;
+  return uri + `//${loc.host}${loc.pathname}hub?client_id=${ClientId}`;
 };
 
 function fixWindow() {

@@ -1,4 +1,4 @@
-package core
+package hub
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	log "github.com/donbattery/bnj/log"
+	log "github.com/donbattery/bnj/logger"
 	"github.com/donbattery/bnj/model"
 )
 
@@ -33,7 +33,7 @@ type wsConn struct {
 	errorCh chan error
 }
 
-// newWsConn creates a new wsConn object in the given context, with the given Client ID, WebSocket connection
+// newWsConn creates a new wsConn object in the given context, with the given ClientId, WebSocket connection
 // and with a supplyed client message and an error channel. Then inits the conn and returns it.
 func newWsConn(ctx context.Context, done context.CancelFunc, clientId string, ws *websocket.Conn, msgCh chan *model.ClientMsg, errorCh chan error) *wsConn {
 	// create
@@ -98,12 +98,15 @@ func (conn *wsConn) sendPrepared(msg *websocket.PreparedMessage) {
 // upon read it determines the type of the WebSocket message and calls the
 // appropriate handler. when the wsConn's context is done, reader returns releasing the resoureces
 func (conn *wsConn) clientMsgReader() {
-	log.Debugf("Setting up WebSocket reader for ClientID %s", conn.clientId)
+	log.Debugf("Setting up WebSocket reader for ClientId %s", conn.clientId)
 
 	for {
 		select {
 		case <-conn.ctx.Done():
 			log.Debugf("WebSocket %s context is done, releasing connection...", conn.clientId)
+			if err := conn.Close(); err != nil {
+				log.Errorf("Failed to properly close WebSocket connection %s", err.Error())
+			}
 			return
 		default:
 			msgType, msgData, msgErr := conn.ReadMessage()
