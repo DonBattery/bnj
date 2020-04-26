@@ -5,8 +5,11 @@ import (
 
 	log "github.com/donbattery/bnj/logger"
 	"github.com/donbattery/bnj/model"
+	"github.com/donbattery/bnj/utils"
 	"github.com/rs/xid"
 )
+
+const SafeDistance = 35
 
 type gameWorld struct {
 	mu       sync.RWMutex
@@ -110,7 +113,44 @@ func (gw *gameWorld) spawnChar(p *player) {
 }
 
 func (gw *gameWorld) findSafePlace(size int) (x float64, y float64) {
-	x = float64(randInt(0, gw.rect.width-size))
-	y = float64(randInt(0, gw.rect.height-size))
-	return
+	for {
+		x = float64(randInt(0, gw.rect.width-size))
+		y = float64(randInt(0, gw.rect.height-size))
+		log.Infof("Next X %f Y %f Size %d", x, y, size)
+		if gw.isEmpty(x, y, size) && gw.isSafe(x, y, size) {
+			return
+		}
+	}
+}
+
+func (gw *gameWorld) isEmpty(x, y float64, size int) bool {
+	for offY := 0; offY <= size; {
+		for offX := 0; offX <= size; {
+			if gw.worldMap.GetFloat(x+float64(offX), y+float64(offY), gw.rules.BlockSize) != 48 {
+				return false
+			}
+			delta := size - offX
+			if delta > 0 && delta < gw.rules.BlockSize {
+				offX += delta
+			} else {
+				offX += gw.rules.BlockSize
+			}
+		}
+		delta := size - offY
+		if delta > 0 && delta < gw.rules.BlockSize {
+			offY += delta
+		} else {
+			offY += gw.rules.BlockSize
+		}
+	}
+	return true
+}
+
+func (gw *gameWorld) isSafe(x, y float64, size int) bool {
+	for _, obj := range gw.objects {
+		if utils.Distance(x+float64((size/2)), y+float64((size/2)), obj.x+float64((size/2)), obj.y+float64((size/2))) < SafeDistance {
+			return false
+		}
+	}
+	return true
 }

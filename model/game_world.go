@@ -1,11 +1,10 @@
 package model
 
-type Game interface {
-	Init(serverMsgCh chan *ServerMsg)
-	Login(req *ClientRequest) bool
-	RemovePlayer(name string)
-	// GetWorld() GameWorldDump
-}
+import (
+	"math"
+
+	log "github.com/donbattery/bnj/logger"
+)
 
 type GameWorldDump struct {
 	WorldRules   WorldRules       `json:"world_rules"`
@@ -32,11 +31,6 @@ type PlayerDump struct {
 	TotalScore int    `json:"total_score"`
 }
 
-type WorldMap struct {
-	Background string   `json:"background"`
-	Rows       []string `json:"rows"`
-}
-
 type GameObjectDump struct {
 	ObjType string `json:"obj_type"`
 	Anim    int    `json:"anim"`
@@ -44,6 +38,30 @@ type GameObjectDump struct {
 	Y       int    `json:"y"`
 	FlipX   bool   `json:"flip_x"`
 	FlipY   bool   `json:"flip_y"`
+}
+
+type WorldMap struct {
+	Background string   `json:"background"`
+	Rows       []string `json:"rows"`
+}
+
+func (wm WorldMap) GetFloat(x, y float64, size int) int {
+	col := int(math.Floor(x / float64(size)))
+	row := int(math.Floor(y / float64(size)))
+	log.Infof("X %f.2 Y %f.2 ROW %d COL %d", x, y, row, col)
+	if col < 0 {
+		return 49
+	}
+	if col >= len(wm.Rows[0]) {
+		return 49
+	}
+	if row < 0 {
+		return 48
+	}
+	if row >= len(wm.Rows) {
+		return 49
+	}
+	return int(wm.Rows[row][col])
 }
 
 func DefaultWorldMap() WorldMap {

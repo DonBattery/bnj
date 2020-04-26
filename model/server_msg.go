@@ -2,15 +2,7 @@ package model
 
 import (
 	"fmt"
-
-	"github.com/gorilla/websocket"
 )
-
-// Core is the interface of the WebSocket controller
-type Core interface {
-	AddConn(ws *websocket.Conn, clientID string)
-	Broadcast(msg *ServerMsg, statuses ...ConnStatus)
-}
 
 type ServerMsgType string
 

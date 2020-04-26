@@ -70,10 +70,10 @@ class Display {
   };
 
   drawAnim(destination_x, destination_y, obj_type, anim) {
-    let size = 24;
     if (!this.assets.hasOwnProperty(obj_type)) {
       return
     };
+    let size = this.assets[obj_type].height;
     this.buffer.drawImage(this.assets[obj_type], anim * size, 0, size, size, destination_x, destination_y, size, size);
   };
 

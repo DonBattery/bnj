@@ -14,7 +14,6 @@ class WebSocketManager {
     this.ready          = () => this.ws && this.ws.readyState == WebSocket.OPEN;
 
     this.initWs         = this.initWs.bind(this);
-    this.setup          = this.setup.bind(this);
     this.notify         = this.notify.bind(this);
     this.request        = this.request.bind(this);
     this.msgHandler     = this.msgHandler.bind(this);
@@ -25,7 +24,7 @@ class WebSocketManager {
   initWs() {
     // Get the WebSocket URL
     let uri = getWSURL();
-    console.log(`Initiating WebSocket with connection string: ${uri}`);
+    console.log(`Initiating WebSocket connection with URL: ${uri}`);
     // Return if already connected
     if (this.ws && this.ws.readyState == 1) {
       console.log("Websocket is already connected")
@@ -38,17 +37,10 @@ class WebSocketManager {
       console.error("Failed to create WebSocket object", exception)
       return
     }
-    // Update the status
-    Status.update("WS", "❎");
-    // Set up the WebSocketManager
-    this.setup();
-  };
 
-  setup() {
-    if (!this.ws) {
-      console.error("WebSocketManager.setup called, but ws is not connected");
-      return
-    };
+     /////////////////////////////////////
+    // Set up the WebSocket Connection //
+   /////////////////////////////////////
 
     this.ws.onopen = () => {
       // TODO: Implement recconnect
@@ -56,6 +48,7 @@ class WebSocketManager {
     };
 
     this.ws.onerror = event => {
+      // TODO: Implement proper error handling
       console.error("Connection error:", event);
     };
 
@@ -70,6 +63,8 @@ class WebSocketManager {
       console.log(parsed);
       this.msgHandler(parsed);
     };
+    // Update the status
+    Status.update("WS", "❎");
   };
 
   msgHandler(msg) {
