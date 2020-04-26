@@ -3,38 +3,57 @@ package core
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/gorilla/websocket"
 
-	log "github.com/donbattery/bnj/log"
+	log "github.com/donbattery/bnj/logger"
 	"github.com/donbattery/bnj/model"
-	"github.com/donbattery/bnj/utils"
 )
 
 // WsHub is the WebSocket communication controller
 type WsHub struct {
-	ctx         context.Context
-	initOnce    sync.Once
-	conns       []*wsConn
-	serverMsgCh chan *model.ServerMsg
+	ctx      context.Context
+	mu       sync.RWMutex
+	initOnce sync.Once
+
+	conns []*wsConn
+
 	clientMsgCh chan *model.ClientMsg
 	errorCh     chan error
-	mu          sync.RWMutex
+	controlCh   chan *model.ControlNotify
+
+	requestFn func(req *model.ClientRequest)
+	logoutFn  func(clientId string)
 }
 
 // NewWsHub creates a new WsHub in the given context and initializes it
-func NewWsHub(ctx context.Context) *WsHub {
+func NewWsHub(ctx context.Context, controlCh chan *model.ControlNotify) *WsHub {
 	return &WsHub{
 		ctx:         ctx,
 		clientMsgCh: make(chan *model.ClientMsg),
 		errorCh:     make(chan error),
+		controlCh:   controlCh,
+		requestFn:   func(req *model.ClientRequest) {},
 	}
 }
 
-// Init sets up and starts the WebSocket Hub
-func (hub *WsHub) Init() {
+func (hub *WsHub) SetRequestFn(f func(req *model.ClientRequest)) {
+	hub.mu.Lock()
+	defer hub.mu.Unlock()
+
+	hub.requestFn = f
+}
+
+func (hub *WsHub) SetLogoutFn(f func(clientId string)) {
+	hub.mu.Lock()
+	defer hub.mu.Unlock()
+
+	hub.logoutFn = f
+}
+
+// Start sets up and starts the WebSocket Hub
+func (hub *WsHub) Start() {
 	hub.initOnce.Do(func() {
 		go hub.reader()
 	})
@@ -67,7 +86,7 @@ func (hub *WsHub) reader() {
 	}
 }
 
-func (hub *WsHub) AddConn(ws *websocket.Conn, clientId string) {
+func (hub *WsHub) Connect(clientId string, ws *websocket.Conn) {
 	connCtx, cancel := context.WithCancel(hub.ctx)
 	conn := newWsConn(connCtx, cancel, clientId, ws, hub.clientMsgCh, hub.errorCh)
 	hub.mu.Lock()
@@ -84,11 +103,12 @@ func (hub *WsHub) removeConn(clientId string) {
 			conn.done()
 			hub.conns = append(hub.conns[:i], hub.conns[i+1:]...)
 			log.Infof("CLient %s disconnected", conn.clientId)
+			go hub.logoutFn(clientId)
 		}
 	}
 }
 
-func (hub *WsHub) changeConnStatus(clientId string, status model.ConnStatus) {
+func (hub *WsHub) ChangeConnStatus(clientId string, status model.ConnStatus) {
 	for _, conn := range hub.conns {
 		if conn.clientId == clientId {
 			conn.changeStatus(status)
@@ -128,10 +148,10 @@ func (hub *WsHub) createResponder(req *model.ClientRequest) func(status model.Se
 		resp := req.CreateResponse(status, string(payloadBytes))
 		// Create the ServerMsg and put the response in it
 		msg := &model.ServerMsg{
-			Type:     model.ServerMsg_Response,
-			Objects:  nil,
-			Chat:     nil,
-			Response: resp,
+			MsgType:     model.ServerMsg_Response,
+			WorldUpdate: nil,
+			Chat:        nil,
+			Response:    resp,
 		}
 		// Send the response to the requesting client
 		log.Debugf("Responding to client: %s request: %s status: %s", req.ClientId, req.RequestId, status.String())
@@ -140,7 +160,7 @@ func (hub *WsHub) createResponder(req *model.ClientRequest) func(status model.Se
 }
 
 func (hub *WsHub) Broadcast(msg *model.ServerMsg, statuses ...model.ConnStatus) {
-	log.Debugf("Broadcasting message type %s to status: %+v", msg.Type, statuses)
+	// log.Debugf("Broadcasting message type %s to status: %+v", msg.Type, statuses)
 	jsonBytes, err := json.Marshal(msg)
 	if err != nil {
 		log.Fatalf("Failed to encode ServerMessage as JSON %s", err.Error())
@@ -161,6 +181,10 @@ func (hub *WsHub) Broadcast(msg *model.ServerMsg, statuses ...model.ConnStatus) 
 	}
 }
 
+func (hub *WsHub) BroadcastGameUpdate(msg *model.ServerMsg) {
+	hub.Broadcast(msg, model.Status_InGame)
+}
+
 func (hub *WsHub) handleClientMsg(msg *model.ClientMsg) {
 	switch msg.ClientMsgType {
 	// in case of Notification
@@ -178,7 +202,7 @@ func (hub *WsHub) handleClientMsg(msg *model.ClientMsg) {
 	case model.ClientMsg_Request:
 		msg.Request.ClientId = msg.ClientId                     // copy the client id into the response
 		msg.Request.Response = hub.createResponder(msg.Request) // create responder and put it into the request
-		hub.onRequest(msg.Request)
+		go hub.requestFn(msg.Request)
 	}
 }
 
@@ -191,29 +215,4 @@ func (hub *WsHub) onChat(chat *model.ChatNotify) {
 
 func (hub *WsHub) onControl(control *model.ControlNotify) {
 
-}
-
-func (hub *WsHub) onRequest(request *model.ClientRequest) {
-	switch request.RequestType {
-	case "login":
-		hub.handleLogin(request)
-	}
-}
-
-func (hub *WsHub) handleLogin(req *model.ClientRequest) {
-	// unmarshal LoginRequest
-	var loginRequest model.LoginRequest
-	if err := json.Unmarshal([]byte(req.RequestBody), &loginRequest); err != nil {
-		req.Response(model.ResponseStatusBadRequest, fmt.Sprintf("Malformed request JSON: %s", err.Error()))
-		return
-	}
-	// validate LoginRequest
-	if err := loginRequest.Validate(); err != nil {
-		req.Response(model.ResponseStatusBadRequest, fmt.Sprintf("Invalid Login Request %s", err.Error()))
-		return
-	}
-	// try to log into the game
-	if ok := utils.Game(hub.ctx).Login(req); ok {
-		hub.changeConnStatus(req.ClientId, model.Status_InGame)
-	}
 }

@@ -1,5 +1,8 @@
 "use strict";
 
+// This will be inited with the StatusManager
+var Status;
+
 // Client's unique ID
 const ClientID = Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36);
 

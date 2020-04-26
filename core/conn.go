@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	log "github.com/donbattery/bnj/log"
+	log "github.com/donbattery/bnj/logger"
 	"github.com/donbattery/bnj/model"
 )
 
@@ -59,6 +59,8 @@ func (conn *wsConn) changeStatus(status model.ConnStatus) {
 	conn.mu.Lock()
 	defer conn.mu.Unlock()
 	conn.status = status
+
+	log.Debugf("Conn %s status changed to %d", conn.clientId, status)
 }
 
 // sendRaw sends the supplied byte slice to the client as a TextMessage

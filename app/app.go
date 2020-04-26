@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/donbattery/bnj/database"
-	log "github.com/donbattery/bnj/log"
+	log "github.com/donbattery/bnj/logger"
 	"github.com/donbattery/bnj/model"
 	"github.com/donbattery/bnj/utils"
 )

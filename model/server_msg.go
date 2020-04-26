@@ -2,15 +2,7 @@ package model
 
 import (
 	"fmt"
-
-	"github.com/gorilla/websocket"
 )
-
-// Core is the interface of the WebSocket controller
-type Core interface {
-	AddConn(ws *websocket.Conn, clientID string)
-	Broadcast(msg *ServerMsg, statuses ...ConnStatus)
-}
 
 type ServerMsgType string
 
@@ -23,11 +15,12 @@ const (
 type ServerResponseStatus int
 
 const (
-	ResponseStatusOK           ServerResponseStatus = 200
-	ResponseStatusAccepted     ServerResponseStatus = 202
-	ResponseStatusBadRequest   ServerResponseStatus = 400
-	ResponseStatusUnauthorized ServerResponseStatus = 401
-	ResponseStatusServerError  ServerResponseStatus = 500
+	ResponseStatusOK            ServerResponseStatus = 200
+	ResponseStatusAccepted      ServerResponseStatus = 202
+	ResponseStatusBadRequest    ServerResponseStatus = 400
+	ResponseStatusUnauthorized  ServerResponseStatus = 401
+	ResponseStatusNotAccaptable ServerResponseStatus = 406
+	ResponseStatusServerError   ServerResponseStatus = 500
 )
 
 func (srs *ServerResponseStatus) String() string {
@@ -40,6 +33,8 @@ func (srs *ServerResponseStatus) String() string {
 		return "Response Status: Bad Request"
 	case ResponseStatusUnauthorized:
 		return "Response Status: Unauthorized"
+	case ResponseStatusNotAccaptable:
+		return "Response Status: Not Accaptable"
 	case ResponseStatusServerError:
 		return "Response Status: Server Error"
 	default:
@@ -55,19 +50,24 @@ type ServerResponse struct {
 	Payload    string               `json:"payload"`
 }
 
-// ServerMsg is an object to be sent to one or more clients
-type ServerMsg struct {
-	Type     ServerMsgType   `json:"type"`
-	Objects  []GameObject    `josn:"objects,omitempty"`
-	Chat     *ChatNotify     `json:"chat,omitempty"`
-	Response *ServerResponse `json:"response,omitempty"`
+type WorldUpdate struct {
+	Players      []PlayerDump     `json:"players"`
+	WorldObjects []GameObjectDump `json:"world_objects"`
 }
 
-func NewServerMsg(msgType ServerMsgType, objects []GameObject, chat *ChatNotify, response *ServerResponse) *ServerMsg {
+// ServerMsg is an object to be sent to one or more clients
+type ServerMsg struct {
+	MsgType     ServerMsgType   `json:"msg_type"`
+	WorldUpdate *WorldUpdate    `json:"world_update,omitempty"`
+	Chat        *ChatNotify     `json:"chat,omitempty"`
+	Response    *ServerResponse `json:"response,omitempty"`
+}
+
+func NewServerMsg(msgType ServerMsgType, worldUpdate *WorldUpdate, chat *ChatNotify, response *ServerResponse) *ServerMsg {
 	return &ServerMsg{
-		Type:     msgType,
-		Objects:  objects,
-		Chat:     chat,
-		Response: response,
+		MsgType:     msgType,
+		WorldUpdate: worldUpdate,
+		Chat:        chat,
+		Response:    response,
 	}
 }

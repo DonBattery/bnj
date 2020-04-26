@@ -10,11 +10,12 @@ require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gorilla/websocket v1.4.2
 	github.com/labstack/echo v3.3.10+incompatible
-	github.com/labstack/gommon v0.3.0 // indirect
+	github.com/labstack/gommon v0.3.0
 	github.com/mikloslorinczi/pager v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.2.1
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/viper v1.6.3
 	github.com/valyala/fasttemplate v1.1.0 // indirect
+	google.golang.org/appengine v1.6.3
 )

@@ -1,49 +1,29 @@
 package model
 
-type Game interface {
-	Init(serverMsgCh chan *ServerMsg)
-	Login(req *ClientRequest) bool
-	RemovePlayer(name string)
-	// GetWorld() GameWorldDump
-}
+import (
+	"math"
 
-type GameWorld struct {
-	WorldRules   *WorldRules
-	Players      []*Player
-	WorldMap     *WorldMap
-	WorldObjects []*GameObject
-}
+	log "github.com/donbattery/bnj/logger"
+)
 
 type GameWorldDump struct {
-	WorldRules   WorldRules   `json:"world_rules"`
-	Players      []Player     `json:"players"`
-	WorldMap     WorldMap     `json:"world_map"`
-	WorldObjects []GameObject `json:"world_objects"`
-}
-
-func (gw *GameWorld) Dump() GameWorldDump {
-	gwd := GameWorldDump{
-		WorldRules: *gw.WorldRules,
-		WorldMap:   *gw.WorldMap,
-	}
-	for _, player := range gw.Players {
-		gwd.Players = append(gwd.Players, *player)
-	}
-	for _, obj := range gw.WorldObjects {
-		gwd.WorldObjects = append(gwd.WorldObjects, *obj)
-	}
-	return gwd
+	WorldRules   WorldRules       `json:"world_rules"`
+	WorldMap     WorldMap         `json:"world_map"`
+	Players      []PlayerDump     `json:"players"`
+	WorldObjects []GameObjectDump `json:"world_objects"`
 }
 
 type WorldRules struct {
-	BlockSize   int `json:"block_size"`
-	MaxPlayer   int `json:"max_player"`
-	MinPlayer   int `json:"min_player"`
-	TargetScore int `json:"target_score"`
-	WaitTime    int `json:"wait_time"`
+	BlockSize   int     `json:"block_size"   yaml:"block_size"   mapstructure:"block_size"`
+	MaxPlayer   int     `json:"max_player"   yaml:"may_player"   mapstructure:"max_player"`
+	MinPlayer   int     `json:"min_player"   yaml:"min_player"   mapstructure:"min_player"`
+	TargetScore int     `json:"target_score" yaml:"target_score" mapstructure:"target_score"`
+	WaitTime    int     `json:"wait_time"    yaml:"wait_time"    mapstructure:"wait_time"`
+	Gravity     float64 `json:"gravity"      yaml:"gravity"      mapstructure:"gravity"`
+	Friction    float64 `json:"friction"     yaml:"friction"     mapstructure:"friction"`
 }
 
-type Player struct {
+type PlayerDump struct {
 	Name       string `json:"name"`
 	Color      string `json:"color"`
 	RoundWins  int    `json:"round_wins"`
@@ -51,32 +31,41 @@ type Player struct {
 	TotalScore int    `json:"total_score"`
 }
 
+type GameObjectDump struct {
+	ObjType string `json:"obj_type"`
+	Anim    int    `json:"anim"`
+	X       int    `json:"x"`
+	Y       int    `json:"y"`
+	FlipX   bool   `json:"flip_x"`
+	FlipY   bool   `json:"flip_y"`
+}
+
 type WorldMap struct {
 	Background string   `json:"background"`
 	Rows       []string `json:"rows"`
 }
 
-type GameObject struct {
-	ID       string  `json:"-"`
-	ParentID string  `json:"-"`
-	Type     string  `json:"type"`
-	PosX     float64 `json:"pos_x"`
-	PosY     float64 `json:"pos_y"`
-	FlipX    bool    `json:"flip_x"`
-	FlipY    bool    `json:"flip_y"`
-	Width    int     `json:"-"`
-	Height   int     `json:"-"`
-	Vector   *Vector `json:"-"`
+func (wm WorldMap) GetFloat(x, y float64, size int) int {
+	col := int(math.Floor(x / float64(size)))
+	row := int(math.Floor(y / float64(size)))
+	log.Infof("X %f.2 Y %f.2 ROW %d COL %d", x, y, row, col)
+	if col < 0 {
+		return 49
+	}
+	if col >= len(wm.Rows[0]) {
+		return 49
+	}
+	if row < 0 {
+		return 48
+	}
+	if row >= len(wm.Rows) {
+		return 49
+	}
+	return int(wm.Rows[row][col])
 }
 
-type Vector interface {
-	X() float64
-	Y() float64
-	Len() float64
-}
-
-func DefaultWorldMap() *WorldMap {
-	return &WorldMap{
+func DefaultWorldMap() WorldMap {
+	return WorldMap{
 		Background: "#4d9de3",
 		Rows: []string{
 			"1110000000000000000000",

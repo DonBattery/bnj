@@ -1,24 +1,22 @@
 "use strict";
 
-// Engine is animation manager that calls the Display's render then
-// the GameManager's update method on every step in time
+// Engin makes shure that its render method is called every step in time
 class Engine {
-  constructor(step, update, render) {
+  constructor(step) {
     this.step            = step,
-    this.update          = (update) ? update : () => {};
-    this.render          = (render) ? render : () => {};
-    this.timeSinceUpdate = 0;
+    this.render          = () => {};
+    this.timeSinceRender = 0;
     this.frame           = null,
     this.engineTime      = null,
-    this.updated         = false;
 
     this.initEngine  = this.initEngine.bind(this);
     this.haltEngine  = this.haltEngine.bind(this);
     this.run = this.run.bind(this);
   };
 
-  initEngine() {
-    this.timeSinceUpdate = this.step;
+  initEngine(renderFn) {
+    this.render = renderFn;
+    this.timeSinceRender = this.step;
     this.engineTime = window.performance.now();
     this.frame = window.requestAnimationFrame(this.run);
   };
@@ -31,15 +29,13 @@ class Engine {
     this.frame = window.requestAnimationFrame(this.run);
 
     let deltaTime = rightNow - this.engineTime;
-    this.timeSinceUpdate += deltaTime;
+    this.timeSinceRender += deltaTime;
     this.engineTime = rightNow;
 
-    if (this.timeSinceUpdate >= this.step) {
-      Status.update("FPS", (1 / (this.timeSinceUpdate / 1000)).toFixed(2)); // Calculate FPS
+    if (this.timeSinceRender >= this.step) {
+      Status.update("FPS", (1 / (this.timeSinceRender / 1000)).toFixed(2)); // Calculate FPS
       this.render();
-      this.timeSinceUpdate = 0;
+      this.timeSinceRender = 0;
     };
-
-    this.update();
   };
 };
