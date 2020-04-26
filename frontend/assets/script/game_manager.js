@@ -8,6 +8,7 @@ class GameManager {
     this.input   = null;
 
     this.initGame = this.initGame.bind(this);
+    this.onUpdate = this.onUpdate.bind(this);
   };
 
   initGame(configs) {
@@ -19,10 +20,16 @@ class GameManager {
         configs.world_map.rows),
       configs.world_objects)
 
-    this.display = new Display(this.world);
+    this.display = new Display(this.world, {
+      "vita": document.getElementById("VitaImg")
+    });
 
     // this.engine = new Engine(33, this.world.update, this.display.render);
     this.engine = new Engine(33, this.display.drawAll, this.display.render);
     this.engine.initEngine();
   };
+
+  onUpdate(objects) {
+    this.display.update(objects);
+  }
 };

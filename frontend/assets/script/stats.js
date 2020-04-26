@@ -1,7 +1,5 @@
 "use strict";
 
-var Status;
-
 // StatusManager manages the status bar
 class StatusManager {
   constructor(statusBar) {

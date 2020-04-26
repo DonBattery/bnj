@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo"
 
-	log "github.com/donbattery/bnj/log"
+	log "github.com/donbattery/bnj/logger"
 	"github.com/donbattery/bnj/model"
 )
 

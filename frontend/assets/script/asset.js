@@ -1,44 +1,24 @@
 "use strict";
 
-class ImageAsset {
-  constructor(img, name) {
-    this.img = img;
-    this.name = name;
-  };
-};
-
-class GameObject {
-  constructor(x, y) {
-
+class WorldObject {
+  constructor(x, y, obj_type, anim, flip_x, flip_y) {
+    this.x = x;
+    this.y = y;
+    this.obj_type = obj_type;
+    this.anim = anim;
+    this.flip_x = flip_x;
+    this.flip_y = flip_y;
   };
 };
 
 class AssetManager {
   constructor() {
+    this.assets = {};
 
+    document.querySelectorAll(".imgAsset").forEach(asset => {
+      this.assets[asset.getAttribute("data-name")] = asset;
+    });
+
+    this.getAll = () => this.assets;
   };
-
-  async load() {
-
-  };
-
-  preloadImages(images, callback) {
-    let newImages = [];
-    let loadedImages = 0;
-
-    function postLoad() {
-      loadedImages++
-      if (loadedImages == images.length) {
-        callback(newImages);
-      };
-    };
-
-    for (let i = 0; i < images.length; i++) {
-        newImages[i] = new Image();
-        newImages[i].src = images[i];
-        newImages[i].onload = () => { postLoad() };
-        newImages[i].onerror = () => { postLoad() };
-    };
-  };
-
 };

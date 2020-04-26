@@ -3,8 +3,8 @@
 class Display {
   constructor(world, assets) {
     this.updated = false;
-    this.world   = world;
-    this.assets  = assets || [];
+
+    this.assets  = assets || {};
 
     this.width         = world.widthPx();
     this.height        = world.heightPx();
@@ -18,12 +18,11 @@ class Display {
     this.buffer.canvas.height = this.height;
     this.buffer.canvas.width  = this.width;
 
-    this.resize      = this.resize.bind(this);
-    this.render      = this.render.bind(this);
-    this.drawBox     = this.drawBox.bind(this);
-    this.drawObject  = this.drawObject.bind(this);
-    this.drawBunny   = this.drawBunny.bind(this);
-    this.drawAll     = this.drawAll.bind(this);
+    this.resize        = this.resize.bind(this);
+    this.render        = this.render.bind(this);
+    this.drawBox       = this.drawBox.bind(this);
+    this.drawAnim      = this.drawAnim.bind(this);
+    this.drawWorld     = this.drawWorld.bind(this);
 
     this.gamePage.classList.remove("hidden");
 
@@ -68,41 +67,36 @@ class Display {
   drawBox(x, y, width, height, color) {
     this.buffer.fillStyle = color;
     this.buffer.fillRect(x, y, width, height);
-  }
-
-  drawObject(image, source_x, source_y, destination_x, destination_y, width, height) {
-    this.buffer.drawImage(image,
-      source_x, source_y, width, height,
-      Math.round(destination_x), Math.round(destination_y), width, height);
   };
 
-  drawBunny(image, source_x, source_y, destination_x, destination_y, width, height) {
-    this.buffer.drawImage(image,
-      source_x, source_y, width, height,
-      Math.round(destination_x), Math.round(destination_y), width, height);
+  drawAnim(destination_x, destination_y, obj_type, anim) {
+    let size = 24;
+    if (!this.assets.hasOwnProperty(obj_type)) {
+      return
+    };
+    this.buffer.drawImage(this.assets[obj_type], anim * size, 0, size, size, destination_x, destination_y, size, size);
   };
 
-  drawAll() {
-    this.drawBox(0, 0, this.buffer.canvas.width, this.buffer.canvas.height, this.world.world_map.background);
+  drawWorld(world) {
+    this.drawBox(0, 0, this.buffer.canvas.width, this.buffer.canvas.height, world.world_map.background);
 
-    for (let i = 0; i < this.world.world_map.rows.length; i++) {
-      const row = this.world.world_map.rows[i];
+    for (let i = 0; i < world.world_map.rows.length; i++) {
+      const row = world.world_map.rows[i];
       for (let j = 0; j < row.length; j++) {
-        const elem = this.world.world_map.rows[i][j];
-        let color;
-        if (elem == "0") {
-          color = this.world.world_map.background;
-        } else {
-          color = numToColor(elem);
-        }
+        const elem = world.world_map.rows[i][j];
+        let color = (elem == "0") ? world.world_map.background : numToColor(elem);
         this.drawBox(
-          j * this.world.world_rules.block_size,
-          i * this.world.world_rules.block_size,
-          this.world.world_rules.block_size,
-          this.world.world_rules.block_size,
+          j * world.world_rules.block_size,
+          i * world.world_rules.block_size,
+          world.world_rules.block_size,
+          world.world_rules.block_size,
           color);
       };
     };
+
+    world.world_objects.forEach(obj => {
+      this.drawAnim(obj.x, obj.y, obj.obj_type, obj.anim);
+    });
 
     this.updated = true;
   };

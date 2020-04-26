@@ -1,5 +1,6 @@
 "use strict";
 
+// LoginRequest is the body of a login request sent to the server
 class LoginRequest {
   constructor(name, color) {
     this.name = name;
@@ -7,11 +8,14 @@ class LoginRequest {
   };
 };
 
+// LoginManager is responsible to manage to login page and sending
+// login requests to the server and trigger onSuccessFn with the world_data
 class LoginManager {
-  constructor(requestFn, onSuccessFn) {
+  constructor() {
     this.authenticated = false;
-    this.requestFn     = requestFn;
-    this.onSuccessFn   = onSuccessFn;
+
+    this.requestFn     = () => {};
+    this.onSuccessFn   = () => {};
 
     this.loginPage   = document.getElementById("LoginPage");
     this.nameField   = document.getElementById("LoginName");
@@ -32,7 +36,7 @@ class LoginManager {
   };
 
   validate() {
-    return this.nameField.value.length >= 3 && this.nameField.value.length <= 16;
+    return this.nameField.value.length >= 3 && this.nameField.value.length <= 12;
   };
 
   auth() {

@@ -1,14 +1,18 @@
 "use strict";
 
+// GameWorld representes the static game world (platforms)
+// and the dynamic elements in it, like the players and game objects
 class GameWorld {
-  constructor(rules, players, worldMap, gameObjects) {
-    this.world_rules = rules;
-    this.players = players;
-    this.world_map = worldMap;
-    this.game_objects = gameObjects;
+  constructor(opts) {
+    this.world_rules   = new WorldRules(opts.world_rules || {});
+    this.world_map     = new WorldMap(opts.world_map || {});
+    this.players       = opts.players       || [];
+    this.world_objects = opts.world_objects || [];
 
-    console.log(typeof this.world_map.width());
-    console.log(this.world_map);
+    this.updateWorld = opts => {
+      this.players       = opts.players       || this.players;
+      this.world_objects = opts.world_objects || this.world_objects;
+    };
 
     this.width    = () => this.world_map.width();
     this.height   = () => this.world_map.height();
@@ -17,20 +21,24 @@ class GameWorld {
   };
 };
 
+// WorldRules are the rules of the GameWorld
 class WorldRules {
-  constructor(blockSize, maxPlayer, minPlayer, targetScore, waitTime) {
-    this.block_size   = blockSize;
-    this.max_player   = maxPlayer;
-    this.min_player   = minPlayer;
-    this.target_score = targetScore;
-    this.wait_time    = waitTime;
+  constructor(opts) {
+    this.block_size   = opts.block_size || 16;
+    this.max_player   = opts.max_player;
+    this.min_player   = opts.min_player;
+    this.target_score = opts.target_score;
+    this.wait_time    = opts.wait_time;
+    this.gravity      = opts.gravity;
+    this.friction     = opts.friction;
   };
 };
 
+// WorldMap is the map of the GameWorld
 class WorldMap {
-  constructor(background, rows) {
-    this.background = background;
-    this.rows       = rows;
+  constructor(opts) {
+    this.background = opts.background || "black";
+    this.rows       = opts.rows || [""];
 
     this.width  = () => this.rows[0].length;
     this.height = () => this.rows.length;
